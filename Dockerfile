@@ -36,13 +36,8 @@ RUN rm -Rf /tmp/*
 
 # Setup SSH keys to download the necessary corpora and 
 # source code for the feature extraction
-#ADD id_rsa.pub /root/test
-#RUN ls
 RUN mkdir -p /root/.ssh
-#RUN touch  ~/.ssh/known_hosts
-#RUN ssh-keygen -R bitbucket.org
 RUN ssh-keyscan -t rsa bitbucket.org > ~/.ssh/known_hosts
-#RUN ./iter-genreclassification.py
 ADD id_rsa /root/.ssh/id_rsa
 RUN chmod 700 /root/.ssh/id_rsa
 ADD id_rsa.pub /root/.ssh/id_rsa.pub
