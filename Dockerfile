@@ -64,8 +64,9 @@ WORKDIR /home/grafting-genreclassification
 RUN chmod +x *.py
 RUN mkdir results
 RUN mkdir tmp
+RUN mkdir input
 
-# Run feature extraction
+# Run feature extraction for 100 top words and 91 syntactic features
 WORKDIR /home/feature-extraction-tools
 RUN bash run.sh Confs/syntax+100tw.conf
 
@@ -78,9 +79,40 @@ RUN cp /home/feature-extraction-tools/extracted_features/syntax+100tw/Educationa
 RUN cp /home/feature-extraction-tools/extracted_features/syntax+100tw/Literature.parsed.grafting train_Literature.parsed.grafting
 RUN cp /home/feature-extraction-tools/extracted_features/syntax+100tw/ScientificProse.parsed.grafting train_ScientificProse.parsed.grafting
 
-# Ignore length of the document as a feature, as it is an unfair feature given that educational texts are much shorter (is this True, Andrea?)
+# Ignore length of the document as a feature, as it is an unfair feature given that educational and journalism texts are much shorter than the other two types
 RUN /bin/echo 'lunghezzaDOC' > excluded.txt
 
 WORKDIR /home/grafting-genreclassification
-RUN /bin/echo 'Execute ./iter-genreclassification.py to conduct the genre classification'
-#RUN ./iter-genreclassification.py
+RUN ./iter-genreclassification.py
+
+# Change foldernames
+RUN mv results results-syntax100tw
+RUN mv input input-syntax100tw
+RUN mv tmp tmp-syntax100tw
+RUN mkdir input
+RUN mkdir results
+RUN mkdir tmp
+
+# Run feature extraction for 200 top words
+WORKDIR /home/feature-extraction-tools
+RUN bash run.sh Confs/200tw.conf
+
+# Copy extracted features for each document set to input directory of grafting application
+WORKDIR /home/grafting-genreclassification/input
+RUN cp /home/feature-extraction-tools/extracted_features/200tw/FeatNames.txt .
+RUN cp /home/feature-extraction-tools/extracted_features/200tw/testing.grafting .
+RUN cp /home/feature-extraction-tools/extracted_features/200tw/Journalism.parsed.grafting train_Journalism.parsed.grafting
+RUN cp /home/feature-extraction-tools/extracted_features/200tw/Educational.parsed.grafting train_Educational.parsed.grafting
+RUN cp /home/feature-extraction-tools/extracted_features/200tw/Literature.parsed.grafting train_Literature.parsed.grafting
+RUN cp /home/feature-extraction-tools/extracted_features/200tw/ScientificProse.parsed.grafting train_ScientificProse.parsed.grafting
+
+# Ignore length of the document as a feature, as it is an unfair feature given that educational and journalism texts are much shorter than the other two types
+RUN /bin/echo 'lunghezzaDOC' > excluded.txt
+
+WORKDIR /home/grafting-genreclassification
+RUN ./iter-genreclassification.py
+
+# Change foldernames
+RUN mv results results-200tw
+RUN mv input input-200tw
+RUN mv tmp tmp-200tw
